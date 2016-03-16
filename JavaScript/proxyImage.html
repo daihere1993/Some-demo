@@ -1,3 +1,38 @@
-Unstaged changes after reset:
-M	JavaScript/proxyImage.html
-D	proxyImage.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ProxyImage</title>
+</head>
+<body>
+    <script>
+        /*********************************运用虚拟代理实现图片预加载*********************************/
+        var myImage = (function () {
+            var imgNode = document.createElement( 'img' );
+            document.body.appendChild( imgNode );
+            
+            return {
+                setSrc: function ( src ) {
+                    imgNode.src = src;
+                }
+            }
+        })();
+        
+        var proxyImage = (function () {
+            var img = new Image;
+            img.onload = function () {
+                myImage.setSrc( this.src );
+            }
+            
+            return {
+                setSrc: function ( src ) {
+                    myImage.setSrc( './img/loading.gif' );
+                    img.src = src;
+                }
+            }
+        })();
+        
+        proxyImage.setSrc( 'http://g.hiphotos.baidu.com/zhidao/pic/item/86d6277f9e2f0708fe8a5fd1eb24b899a801f250.jpg' );
+    </script>
+</body>
+</html>
