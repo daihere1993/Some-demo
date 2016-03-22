@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>publish/subscribe</title>
+</head>
+<body>
+    <button id="count">点我</button>
+    <div id="show"></div>
+    
+    <script>
+        /******************************************运用全局发布-订阅模式实现模块间的通信******************************************/
+        /*
+        所实现的功能：a模块里面有一个按钮，每次点击按钮，b模块里的div中会显示按钮被点击的总次数
+        全局发布-订阅模式的特点：可以基于-个全局的EVENT对象，在两个封装良好的的模块中进行通信
+        */
+        
+        var EVENT = (function () {
+            var clientList = {}, listen, trigger, remove;
+            
+            listen = function (key, fn) {
+                if ( !clientList[key] ) {
+                    clientList[key] = [];
+                }
+                clientList[key].push(fn);
+            };
+            
+            trigger = function () {
+                var key = Array.prototype.shift.call(arguments), fns = clientList[key];
+                
+                if ( !fns || fns.length === 0 ) {
+                    return false;
+                }
+                for ( var i = 0, fn; fn = fns[i++]; ) {
+                    fn.apply(this, arguments);
+                }
+            };
+            
+            remove = function (key, fn) {
+                var fns = clientList[key];
+                if ( !fns ) {
+                    return false;
+                }
+                
+                if ( !fn ) {
+                    fns && (fns.lenght = 0);
+                } else {
+                    for ( var l = fns.length - 1; l >= 0; l-- ) {
+                        var _fn = fns[l];
+                        if ( _fn === fn ) {
+                            fns.splice(l, 1);
+                        }
+                    }
+                }
+            };
+            
+            return {
+                listen: listen,
+                trigger: trigger,
+                remove: remove
+            }
+        })();
+        
+        
+        var a = (function () {
+            var count = 0;
+            var button = document.getElementById('count');
+            button.onclick = function () {
+                EVENT.trigger('add', count++);
+            }
+        })();
+        
+        var b = (function () {
+            var div = document.getElementById('show');
+            EVENT.listen('add', function (count) {
+                div.innerHTML = count + 1;
+            });
+        })();
+        
+        
+    </script>
+</body>
+</html>
