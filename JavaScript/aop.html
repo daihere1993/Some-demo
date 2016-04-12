@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>AOP设计模式</title>
+</head>
+<body>
+	<button type="button" tab="login"></button>
+	<script type="text/javascript">
+		/**
+		 * 需求: 页面中有一个登录button, 点击这个button会弹出登录浮层, 与此同时要进行数据上报,
+		 * 来统计有多少用户点击了这个登录button
+		 */
+		Function.prototype.after = function (afterFn) {
+			var __self = this;
+			return function () {
+				var ret = __self.apply(this, arguments);
+				afterFn.apply(this, arguments);
+				return ret;
+			}
+		};
+
+		var showLogin = function () {
+			console.log('打开登录浮框');
+		};
+
+		var log = function () {
+			console.log('上传标签为: ' + this.attributes('tab'));
+		}
+		showLogin = showLogin.after(log);
+		document.getElementById('button').onclick = showLogin;
+	</script>
+</body>
+</html>
